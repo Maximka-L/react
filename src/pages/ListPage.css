@@ -1,0 +1,28 @@
+.list-page {
+    padding: 20px;
+}
+
+.filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-input, .price-input, .category-select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+
+    .search-input, .price-input, .category-select {
+        width: calc(100% - 20px);
+        margin-bottom: 10px;
+    }
+}
