@@ -5,11 +5,13 @@ import './ListPage.css';
 
 const ListPage = () => {
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [filter, setFilter] = useState('');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [modelFilter, setModelFilter] = useState('');
     const [models, setModels] = useState([]);
+    const [isFiltered, setIsFiltered] = useState(false);
 
     useEffect(() => {
         axios.get('https://dummyjson.com/products/search?q=phone')
@@ -21,12 +23,16 @@ const ListPage = () => {
             .catch(error => console.error('Error fetching data:', error));
     }, []);
 
-    const filteredProducts = products.filter(product =>
-        product.title.toLowerCase().includes(filter.toLowerCase()) &&
-        (modelFilter === '' || product.title === modelFilter) &&
-        (minPrice === '' || product.price >= parseFloat(minPrice)) &&
-        (maxPrice === '' || product.price <= parseFloat(maxPrice))
-    );
+    const applyFilters = () => {
+        const filtered = products.filter(product =>
+            product.title.toLowerCase().includes(filter.toLowerCase()) &&
+            (modelFilter === '' || product.title === modelFilter) &&
+            (minPrice === '' || product.price >= parseFloat(minPrice)) &&
+            (maxPrice === '' || product.price <= parseFloat(maxPrice))
+        );
+        setFilteredProducts(filtered);
+        setIsFiltered(true);
+    };
 
     return (
         <div className="list-page">
@@ -63,9 +69,17 @@ const ListPage = () => {
                     onChange={(e) => setMaxPrice(e.target.value)}
                     className="price-input"
                 />
-                <button className="btn">Apply Filters</button>
+                <button className="btn" onClick={applyFilters}>Apply Filters</button>
             </div>
-            <DataList products={filteredProducts} />
+            {isFiltered ? (
+                filteredProducts.length > 0 ? (
+                    <DataList products={filteredProducts} />
+                ) : (
+                    <div className="no-products">No products found. Please adjust your filters.</div>
+                )
+            ) : (
+                <div className="no-products">Please select filters to display products.</div>
+            )}
         </div>
     );
 };
