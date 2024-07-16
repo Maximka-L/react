@@ -9,16 +9,21 @@ const ListPage = () => {
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [modelFilter, setModelFilter] = useState('');
+    const [models, setModels] = useState([]);
 
     useEffect(() => {
-        axios.get('https://dummyjson.com/products/category/smartphones')
-            .then(response => setProducts(response.data.products))
+        axios.get('https://dummyjson.com/products/search?q=phone')
+            .then(response => {
+                setProducts(response.data.products);
+                const uniqueModels = [...new Set(response.data.products.map(product => product.title))];
+                setModels(uniqueModels);
+            })
             .catch(error => console.error('Error fetching data:', error));
     }, []);
 
     const filteredProducts = products.filter(product =>
         product.title.toLowerCase().includes(filter.toLowerCase()) &&
-        product.title.toLowerCase().includes(modelFilter.toLowerCase()) &&
+        (modelFilter === '' || product.title === modelFilter) &&
         (minPrice === '' || product.price >= parseFloat(minPrice)) &&
         (maxPrice === '' || product.price <= parseFloat(maxPrice))
     );
@@ -34,13 +39,16 @@ const ListPage = () => {
                     onChange={(e) => setFilter(e.target.value)}
                     className="search-input"
                 />
-                <input
-                    type="text"
-                    placeholder="Filter by model..."
+                <select
                     value={modelFilter}
                     onChange={(e) => setModelFilter(e.target.value)}
-                    className="search-input"
-                />
+                    className="model-select"
+                >
+                    <option value="">All Models</option>
+                    {models.map((model, index) => (
+                        <option key={index} value={model}>{model}</option>
+                    ))}
+                </select>
                 <input
                     type="number"
                     placeholder="Min price"
@@ -55,6 +63,7 @@ const ListPage = () => {
                     onChange={(e) => setMaxPrice(e.target.value)}
                     className="price-input"
                 />
+                <button className="btn">Apply Filters</button>
             </div>
             <DataList products={filteredProducts} />
         </div>
